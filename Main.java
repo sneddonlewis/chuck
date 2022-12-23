@@ -13,22 +13,36 @@ public class Main {
         var result = input.chars()
                 .mapToObj(Integer::toBinaryString)
                 .map(Main::zeroPadToSeven)
-                .map(Main::toChuckCode)
-                .collect(Collectors.joining(" "));
-        System.out.println(result);
+                .collect(Collectors.joining(""));
+        System.out.println(toChuckCode(result));
     }
 
     private static String toChuckCode(String str) {
         var bits = str.split("");
         List<String> parts = new ArrayList<>();
-        String first = bits[0];
-        for (int i = 0, j = 0; i < bits.length; i++) {
-            // count the bits that are the same as the first
-            // make the part and push to the list
-            // reassign the first var to the next one
-            // repeat until the end
+        int count = 1;
+        String current = bits[0];
+        for (int i = 1; i < bits.length; i++) {
+            if (bits[i].equals(bits[i - 1])) {
+                count++;
+            } else {
+                parts.add(pad(count, current, ""));
+                count = 1;
+                current = bits[i];
+            }
         }
-        return parts.stream().collect(Collectors.joining(" "));
+        parts.add(pad(count, current, ""));
+
+        return parts.stream()
+                .map(Main::convertToZeros)
+                .collect(Collectors.joining(" "));
+    }
+
+    private static String convertToZeros(String group) {
+        var first = group.substring(0, 1);
+        return first.equals("1") ?
+                "0 " + pad(group.length(), "0", "") :
+                "00 " + pad(group.length(), "0", "");
     }
 
     private static String zeroPadToSeven(String str) {
